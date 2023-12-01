@@ -9,8 +9,16 @@ edition.workspace = true
 rust-version.workspace = true
 publish.workspace = true
 dependencies.workspace = true
+dev-dependencies.workspace = true
 
 [dependencies]
 color-eyre = { workspace = true }
 itertools = { workspace = true }
 aho-corasick = "1.1.2"
+
+[dev-dependencies]
+divan = { workspace = true }
+
+[[bench]]
+name = "bench"
+harness = false
