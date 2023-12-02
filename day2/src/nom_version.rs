@@ -51,33 +51,28 @@ impl Game {
     }
 
     fn power(&self) -> u32 {
-        let mut red = 0;
-        let mut green = 0;
-        let mut blue = 0;
-        for round in &self.rounds {
-            for cube in &round.cubes {
-                match cube.color {
-                    Color::Red => red = red.max(cube.count),
-                    Color::Green => green = green.max(cube.count),
-                    Color::Blue => blue = blue.max(cube.count),
-                }
-            }
-        }
-        red * green * blue
+        let (r, g, b) =
+            self.rounds
+                .iter()
+                .flat_map(|r| r.cubes.iter())
+                .fold((0, 0, 0), |(r, g, b), c| match c.color {
+                    Color::Red => (r.max(c.count), g, b),
+                    Color::Green => (r, g.max(c.count), b),
+                    Color::Blue => (r, g, b.max(c.count)),
+                });
+        r * g * b
     }
 
     fn possible(&self) -> bool {
-        for round in &self.rounds {
-            for cube in &round.cubes {
-                match cube.color {
-                    Color::Red if cube.count > 12 => return false,
-                    Color::Green if cube.count > 13 => return false,
-                    Color::Blue if cube.count > 14 => return false,
-                    _ => {}
-                }
-            }
-        }
-        true
+        self.rounds
+            .iter()
+            .flat_map(|r| r.cubes.iter())
+            .all(|c| match c.color {
+                Color::Red if c.count <= 12 => true,
+                Color::Green if c.count <= 13 => true,
+                Color::Blue if c.count <= 14 => true,
+                _ => false,
+            })
     }
 
     pub fn parse(input: &str) -> Result<Game, nom::error::Error<&str>> {
