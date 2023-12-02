@@ -1,4 +1,4 @@
-use {{crate_name}}::*;
+use {{crate_name}}::{part1, part2};
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;

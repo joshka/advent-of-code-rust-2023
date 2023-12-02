@@ -15,8 +15,12 @@ dev-dependencies.workspace = true
 [dependencies]
 color-eyre = { workspace = true }
 itertools = { workspace = true }
+regex = { workspace = true }
+nom = { workspace = true }
+nom-supreme = { workspace = true }
 
 [dev-dependencies]
+rstest = { workspace = true }
 divan = { workspace = true }
 
 [[bench]]
