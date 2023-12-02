@@ -1,21 +1,13 @@
-#![allow(unused)]
-use std::str::FromStr;
-
 use nom::{
-    branch::alt,
-    bytes::complete::tag,
-    character::complete::{digit1, space1},
-    combinator::{map, map_res},
-    multi::separated_list1,
-    sequence::separated_pair,
-    IResult,
+    branch::alt, bytes::complete::tag, character::complete::u32, multi::separated_list1,
+    sequence::separated_pair, IResult, Parser,
 };
-use strum_macros::EnumString;
+use nom_supreme::{final_parser, ParserExt};
 
 pub fn part1(input: &str) -> u32 {
     input
         .lines()
-        .map(|line| game(line).unwrap().1)
+        .map(|line| Game::parse(line).unwrap())
         .filter(Game::possible)
         .map(|game| game.id)
         .sum()
@@ -24,7 +16,7 @@ pub fn part1(input: &str) -> u32 {
 pub fn part2(input: &str) -> u32 {
     input
         .lines()
-        .map(|line| game(line).unwrap().1)
+        .map(|line| Game::parse(line).unwrap())
         .map(|game| game.power())
         .sum()
 }
@@ -46,8 +38,7 @@ struct Cube {
     color: Color,
 }
 
-#[derive(Debug, PartialEq, Eq, EnumString)]
-#[strum(serialize_all = "lowercase")]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 enum Color {
     Red,
     Green,
@@ -88,11 +79,27 @@ impl Game {
         }
         true
     }
+
+    pub fn parse(input: &str) -> Result<Game, nom::error::Error<&str>> {
+        let parser = separated_pair(
+            tag("Game ").precedes(u32),
+            tag(": "),
+            separated_list1(tag("; "), Round::parse),
+        )
+        .map(|(id, rounds)| Game::new(id, rounds));
+        final_parser::final_parser(parser)(input)
+    }
 }
 
 impl Round {
     fn new(cubes: Vec<Cube>) -> Self {
         Self { cubes }
+    }
+
+    fn parse(input: &str) -> IResult<&str, Round> {
+        separated_list1(tag(", "), Cube::parse)
+            .map(Round::new)
+            .parse(input)
     }
 }
 
@@ -100,31 +107,23 @@ impl Cube {
     fn new(count: u32, color: Color) -> Self {
         Self { count, color }
     }
+
+    fn parse(input: &str) -> IResult<&str, Cube> {
+        separated_pair(u32, tag(" "), Color::parse)
+            .map(|(count, color)| Cube::new(count, color))
+            .parse(input)
+    }
 }
 
-fn game(input: &str) -> IResult<&str, Game> {
-    // there's probably a neater way to do this using preceded / separated_pair
-    let (input, _) = tag("Game ")(input)?;
-    let (input, id) = map_res(digit1, str::parse)(input)?;
-    let (input, _) = tag(": ")(input)?;
-    let (input, rounds) = separated_list1(tag("; "), round)(input)?;
-    Ok((input, Game::new(id, rounds)))
-}
-
-fn round(input: &str) -> IResult<&str, Round> {
-    map(separated_list1(tag(", "), cube), Round::new)(input)
-}
-
-fn cube(input: &str) -> IResult<&str, Cube> {
-    map(separated_pair(digit1, tag(" "), color), |(count, color)| {
-        Cube::new(count.parse().unwrap(), color)
-    })(input)
-}
-
-fn color(input: &str) -> IResult<&str, Color> {
-    map(alt((tag("red"), tag("green"), tag("blue"))), |color| {
-        Color::from_str(color).unwrap()
-    })(input)
+impl Color {
+    fn parse(input: &str) -> IResult<&str, Color> {
+        alt((
+            tag("red").value(Color::Red),
+            tag("green").value(Color::Green),
+            tag("blue").value(Color::Blue),
+        ))
+        .parse(input)
+    }
 }
 
 #[cfg(test)]
@@ -144,29 +143,26 @@ mod tests {
     #[test]
     fn test_game() {
         assert_eq!(
-            game("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green").unwrap(),
-            (
-                "",
-                Game {
-                    id: 1,
-                    rounds: vec![
-                        Round::new(vec![Cube::new(3, Color::Blue), Cube::new(4, Color::Red)]),
-                        Round::new(vec![
-                            Cube::new(1, Color::Red),
-                            Cube::new(2, Color::Green),
-                            Cube::new(6, Color::Blue)
-                        ]),
-                        Round::new(vec![Cube::new(2, Color::Green)])
-                    ]
-                }
-            )
+            Game::parse("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"),
+            Ok(Game {
+                id: 1,
+                rounds: vec![
+                    Round::new(vec![Cube::new(3, Color::Blue), Cube::new(4, Color::Red)]),
+                    Round::new(vec![
+                        Cube::new(1, Color::Red),
+                        Cube::new(2, Color::Green),
+                        Cube::new(6, Color::Blue)
+                    ]),
+                    Round::new(vec![Cube::new(2, Color::Green)])
+                ]
+            })
         );
     }
 
     #[test]
     fn test_round() {
         assert_eq!(
-            round("12 red, 13 green, 14 blue"),
+            Round::parse("12 red, 13 green, 14 blue"),
             Ok((
                 "",
                 Round::new(vec![
@@ -180,13 +176,13 @@ mod tests {
 
     #[test]
     fn test_cube() {
-        assert_eq!(cube("12 red"), Ok(("", Cube::new(12, Color::Red))))
+        assert_eq!(Cube::parse("12 red"), Ok(("", Cube::new(12, Color::Red))))
     }
 
     #[test]
     fn test_color() {
-        assert_eq!(color("red"), Ok(("", Color::Red)));
-        assert_eq!(color("green"), Ok(("", Color::Green)));
-        assert_eq!(color("blue"), Ok(("", Color::Blue)));
+        assert_eq!(Color::parse("red"), Ok(("", Color::Red)));
+        assert_eq!(Color::parse("green"), Ok(("", Color::Green)));
+        assert_eq!(Color::parse("blue"), Ok(("", Color::Blue)));
     }
 }
