@@ -75,13 +75,13 @@ impl Game {
             })
     }
 
-    pub fn parse(input: &str) -> Result<Game, nom::error::Error<&str>> {
+    pub fn parse(input: &str) -> Result<Self, nom::error::Error<&str>> {
         let parser = separated_pair(
             tag("Game ").precedes(u32),
             tag(": "),
             separated_list1(tag("; "), Round::parse),
         )
-        .map(|(id, rounds)| Game::new(id, rounds));
+        .map(|(id, rounds)| Self::new(id, rounds));
         final_parser::final_parser(parser)(input)
     }
 }
@@ -91,31 +91,31 @@ impl Round {
         Self { cubes }
     }
 
-    fn parse(input: &str) -> IResult<&str, Round> {
+    fn parse(input: &str) -> IResult<&str, Self> {
         separated_list1(tag(", "), Cube::parse)
-            .map(Round::new)
+            .map(Self::new)
             .parse(input)
     }
 }
 
 impl Cube {
-    fn new(count: u32, color: Color) -> Self {
+    const fn new(count: u32, color: Color) -> Self {
         Self { count, color }
     }
 
-    fn parse(input: &str) -> IResult<&str, Cube> {
+    fn parse(input: &str) -> IResult<&str, Self> {
         separated_pair(u32, tag(" "), Color::parse)
-            .map(|(count, color)| Cube::new(count, color))
+            .map(|(count, color)| Self::new(count, color))
             .parse(input)
     }
 }
 
 impl Color {
-    fn parse(input: &str) -> IResult<&str, Color> {
+    fn parse(input: &str) -> IResult<&str, Self> {
         alt((
-            tag("red").value(Color::Red),
-            tag("green").value(Color::Green),
-            tag("blue").value(Color::Blue),
+            tag("red").value(Self::Red),
+            tag("green").value(Self::Green),
+            tag("blue").value(Self::Blue),
         ))
         .parse(input)
     }

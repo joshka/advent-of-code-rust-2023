@@ -1,4 +1,4 @@
-use day2::*;
+use day2::{nom_version, regex_version};
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;

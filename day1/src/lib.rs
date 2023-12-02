@@ -1,7 +1,7 @@
 use aho_corasick::AhoCorasick;
 
 pub fn calibration_sum_part1(input: &str) -> color_eyre::Result<u32> {
-    let ac = AhoCorasick::new(&["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"])?;
+    let ac = AhoCorasick::new(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"])?;
     let sum = input
         .lines()
         .map(|line| {
@@ -15,7 +15,7 @@ pub fn calibration_sum_part1(input: &str) -> color_eyre::Result<u32> {
 }
 
 pub fn calibration_sum_part2(input: &str) -> color_eyre::Result<u32> {
-    let ac = AhoCorasick::new(&[
+    let ac = AhoCorasick::new([
         "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "0", "1",
         "2", "3", "4", "5", "6", "7", "8", "9",
     ])?;

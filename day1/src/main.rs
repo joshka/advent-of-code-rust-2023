@@ -1,4 +1,4 @@
-use day1::*;
+use day1::{calibration_sum_part1, calibration_sum_part2};
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;

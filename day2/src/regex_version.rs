@@ -6,7 +6,7 @@ pub fn part1(input: &str) -> u32 {
     let game_re = Regex::new(r"Game (?<game>\d+): (?<rest>.*)").unwrap();
     for line in input.lines() {
         let (_, [game, rest]) = game_re.captures(line).map(|cap| cap.extract()).unwrap();
-        if rest.split("; ").all(|pull| possible(pull)) {
+        if rest.split("; ").all(possible) {
             count += game.parse::<u32>().unwrap();
         }
     }
