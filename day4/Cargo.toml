@@ -1,0 +1,27 @@
+[package]
+name = "day4"
+version.workspace = true
+authors.workspace = true
+description.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+color-eyre = { workspace = true }
+itertools = { workspace = true }
+regex = { workspace = true }
+nom = { workspace = true }
+nom-supreme = { workspace = true }
+yansi = "1.0.0-gamma"
+
+[dev-dependencies]
+rstest = { workspace = true }
+divan = { workspace = true }
+
+[[bench]]
+name = "bench"
+harness = false

@@ -172,7 +172,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "day3"
+name = "day4"
 version = "0.1.0"
 dependencies = [
  "color-eyre",
@@ -182,6 +182,7 @@ dependencies = [
  "nom-supreme",
  "regex",
  "rstest",
+ "yansi",
 ]
 
 [[package]]
@@ -817,3 +818,9 @@ name = "windows_x86_64_msvc"
 version = "0.52.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dff9641d1cd4be8d1a070daf9e3773c5f67e78b4d9d42263020c057706765c04"
+
+[[package]]
+name = "yansi"
+version = "1.0.0-rc.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1367295b8f788d371ce2dbc842c7b709c73ee1364d30351dd300ec2203b12377"
